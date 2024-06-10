@@ -36,7 +36,7 @@ public class NotesController {
         //TODO: needs to be logged in
         // note.notebooks.first.user.id == userId
         final Note note = this.service.getById(id);
-        final GetNoteDataResponseDto response = mapper.mapNoteToGetNoteDataResponseDto(note);
+        final GetNoteDataResponseDto response = mapper.noteToGetNoteDataResponseDto(note);
 
         return ResponseEntity.ok(response);
     }

@@ -2,17 +2,15 @@ package com.d_m.noted.notes;
 
 import com.d_m.noted.notes.entities.Note;
 import com.d_m.noted.shared.dtos.notes.GetNoteDataResponseDto;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 
-@Component(value = "notesMapper")
-public class NotesMapper {
-    public GetNoteDataResponseDto mapNoteToGetNoteDataResponseDto(Note note) {
-        return GetNoteDataResponseDto.builder()
-                .id(note.getId())
-                .title(note.getTitle())
-                .content(note.getContent())
-                .dateCreated(note.getCreatedAt())
-                .lastUpdated(note.getUpdatedAt())
-                .build();
-    }
+@Mapper(componentModel = "spring")
+public interface NotesMapper {
+    NotesMapper INSTANCE = Mappers.getMapper(NotesMapper.class);
+
+    @Mapping(target = "dateCreated", source = "createdAt")
+    @Mapping(target = "lastUpdated", source = "updatedAt")
+    GetNoteDataResponseDto noteToGetNoteDataResponseDto(Note note);
 }

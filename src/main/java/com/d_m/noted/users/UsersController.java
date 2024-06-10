@@ -24,7 +24,7 @@ public class UsersController {
             @PathVariable Long id
     ) {
         final UserData user = this.service.findById(id);
-        final LoadDashboardDataDto response = mapper.mapUserToLoadDashboardDataDto(user);
+        final LoadDashboardDataDto response = mapper.userToLoadDashboardDataDto(user);
         return ResponseEntity.ok(response);
     }
 }
