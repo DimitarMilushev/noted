@@ -2,9 +2,9 @@ package com.d_m.noted.users;
 
 import com.d_m.noted.notebooks.entities.Notebook;
 import com.d_m.noted.notes.entities.Note;
-import com.d_m.noted.users.dtos.LoadDashboardDataNoteDto;
-import com.d_m.noted.users.dtos.LoadDashboardDataNotebookDto;
-import com.d_m.noted.users.dtos.LoadDashboardDataDto;
+import com.d_m.noted.shared.dtos.users.LoadDashboardDataNoteDto;
+import com.d_m.noted.shared.dtos.users.LoadDashboardDataNotebookDto;
+import com.d_m.noted.shared.dtos.users.LoadDashboardDataDto;
 import com.d_m.noted.users.entities.UserData;
 import org.springframework.stereotype.Component;
 

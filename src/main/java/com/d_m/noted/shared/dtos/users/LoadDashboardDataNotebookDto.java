@@ -1,4 +1,4 @@
-package com.d_m.noted.users.dtos;
+package com.d_m.noted.shared.dtos.users;
 
 import lombok.Builder;
 

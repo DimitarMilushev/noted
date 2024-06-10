@@ -1,6 +1,6 @@
 package com.d_m.noted.users;
 
-import com.d_m.noted.users.dtos.LoadDashboardDataDto;
+import com.d_m.noted.shared.dtos.users.LoadDashboardDataDto;
 import com.d_m.noted.users.entities.UserData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
