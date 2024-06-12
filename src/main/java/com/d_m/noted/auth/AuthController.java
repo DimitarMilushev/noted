@@ -1,5 +1,6 @@
 package com.d_m.noted.auth;
 
+import com.d_m.noted.shared.dtos.auth.ChangePasswordDto;
 import com.d_m.noted.shared.dtos.auth.SignInDto;
 import com.d_m.noted.shared.dtos.auth.SignUpDto;
 import com.d_m.noted.users.UsersService;
@@ -23,9 +24,9 @@ public class AuthController {
 
     @PostMapping("/sign-up")
     public ResponseEntity<String> signUp(@RequestBody SignUpDto payload) {
-        this.usersService.createUser(payload);
+        final UserData user = this.usersService.createUser(payload);
         // return session
-        return ResponseEntity.ok("");
+        return ResponseEntity.ok(user.toString());
     }
 
     @PostMapping("/sign-in")
@@ -34,6 +35,15 @@ public class AuthController {
             @RequestBody SignInDto payload
     ) {
         final UserData user = this.usersService.findByEmailAndPassword(payload);
-        return ResponseEntity.ok(user.getId().toString());
+        return ResponseEntity.ok(user.toString());
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<String> changePassword(
+            @RequestBody ChangePasswordDto payload
+            ) {
+        this.usersService.changePasswordByEmail(payload);
+
+        return ResponseEntity.ok("success");
     }
 }
