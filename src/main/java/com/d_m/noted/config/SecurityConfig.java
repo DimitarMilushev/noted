@@ -26,7 +26,7 @@ public class SecurityConfig {
             "/auth/sign-in",
             "/auth/sign-up",
             "/auth/change-password",
-            "/h2-console"
+            "/h2-console" //TODO: REMOVE
     };
 
     @Bean
@@ -35,6 +35,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers(PUBLIC_ROUTES).permitAll()
                         .anyRequest().authenticated()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/auth/sign-out")
+                        .deleteCookies("SESSION")
+                        .clearAuthentication(true)
+                        .invalidateHttpSession(true)
+                        .permitAll()
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .headers(HeadersConfigurer::disable)
