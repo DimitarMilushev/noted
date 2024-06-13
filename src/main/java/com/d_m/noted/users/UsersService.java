@@ -8,6 +8,8 @@ import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +22,7 @@ public class UsersService {
     @Autowired
     public UsersService(
             UsersRepository repository,
-            PasswordEncoder passwordEncoder
+            @Lazy PasswordEncoder passwordEncoder
     ) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;

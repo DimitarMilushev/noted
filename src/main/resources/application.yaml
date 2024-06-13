@@ -1,12 +1,47 @@
-spring.application.name=noted
+server:
+  port: 9000
 
-spring.datasource.url=jdbc:postgresql://localhost:5432/noted
-spring.datasource.username=postgres
-spring.datasource.password=postgres
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring:
+  application:
+    name: "noted"
 
-# Hibernate properties
-hibernate.default_fetch_mode=select
+  datasource:
+    url: "jdbc:postgresql://localhost:5432/noted"
+    username: "postgres"
+    password: "postgres"
+    driver-class-name: "org.postgresql.Driver"
 
-spring.jackson.serialization.FAIL_ON_EMPTY_BEANS=false
+  jpa:
+    hibernate:
+      ddl-auto: "update"
+
+    properties:
+      hibernate:
+        dialect: "org.hibernate.dialect.PostgreSQLDialect"
+
+  h2:
+    datasource:
+      url: "jdbc:h2:mem:sessions;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE"
+      username: "root"
+      password: "root"
+      driver-class-name: "org.h2.Driver"
+      schema: "classpath:org/springframework/session/jdbc/schema-h2.sql"
+    console:
+      enabled: true
+      path: "/h2-console"
+
+  session:
+    store-type: "jdbc"
+    jdbc:
+      initialize-schema: "always"
+      table-name: "SPRING_SESSION"
+
+hibernate:
+  default_fetch_mode: "select"
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+
