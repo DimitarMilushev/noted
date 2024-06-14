@@ -25,7 +25,10 @@ public class SecurityAuthDetails implements UserDetails {
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.getStringifiedValue()));
+        return List.of(new SimpleGrantedAuthority(this.roleWithPrefix()));
+    }
+    private String roleWithPrefix() {
+        return "ROLE_" + role.getStringifiedValue();
     }
 
     @Override
