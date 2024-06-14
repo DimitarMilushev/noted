@@ -1,9 +1,11 @@
 package com.d_m.noted.users;
 
+import com.d_m.noted.security.models.SecurityAuthDetails;
 import com.d_m.noted.shared.dtos.users.LoadDashboardDataDto;
 import com.d_m.noted.users.entities.UserData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,13 +20,12 @@ public class UsersController {
         this.mapper = mapper;
     }
 
-    //TODO: change when auth is implemented
-    @GetMapping("/user-with-notebooks/{id}")
+    @GetMapping("/dashboard-data")
     public ResponseEntity<LoadDashboardDataDto> getUserWithNotebooks(
-            @PathVariable Long id
+            @AuthenticationPrincipal SecurityAuthDetails user
     ) {
-        final UserData user = this.service.findById(id);
-        final LoadDashboardDataDto response = mapper.userToLoadDashboardDataDto(user);
+        final UserData userData = this.service.findById(user.getId());
+        final LoadDashboardDataDto response = mapper.userToLoadDashboardDataDto(userData);
         return ResponseEntity.ok(response);
     }
 }

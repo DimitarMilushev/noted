@@ -1,0 +1,47 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: "noted"
+
+  datasource:
+    url: "jdbc:postgresql://localhost:5432/noted"
+    username: "postgres"
+    password: "postgres"
+    driver-class-name: "org.postgresql.Driver"
+
+  jpa:
+    hibernate:
+      ddl-auto: "update"
+
+    properties:
+      hibernate:
+        dialect: "org.hibernate.dialect.PostgreSQLDialect"
+
+  h2:
+    datasource:
+      url: "jdbc:h2:mem:sessions;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE"
+      username: "root"
+      password: "root"
+      driver-class-name: "org.h2.Driver"
+      schema: "classpath:org/springframework/session/jdbc/schema-h2.sql"
+    console:
+      enabled: true
+      path: "/h2-console"
+
+  session:
+    store-type: "jdbc"
+    jdbc:
+      initialize-schema: "always"
+      table-name: "SPRING_SESSION"
+
+hibernate:
+  default_fetch_mode: "select"
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+

@@ -49,4 +49,18 @@ public class NotesService {
 
         return this.repository.save(note);
     }
+
+    public Note changeStatusById(Long id, boolean isShared) {
+        final Note note = this.getById(id);
+        note.setShared(isShared);
+
+        return this.repository.save(note);
+    }
+
+    public boolean isOwnerByUserId(Long noteId, Long userId) {
+        final Note note = this.getById(noteId);
+        final Long ownerId = note.getNotebook().getUser().getId();
+
+        return ownerId.equals(userId);
+    }
 }

@@ -35,16 +35,16 @@ public class NotebooksService {
                 );
     }
 
-    public Notebook createNotebook(CreateNotebookDto payload) {
-        if (repository.findByTitleAndUserId(payload.title(), payload.userId()).isPresent()) {
-            throw new EntityExistsException("Notebook with title " + payload.title() + " already exists");
+    public Notebook createNotebook(String title, Long userId) {
+        if (repository.findByTitleAndUserId(title, userId).isPresent()) {
+            throw new EntityExistsException("Notebook with title " + title + " already exists");
         }
         final UserData user = this.usersRepository
-                .findById(payload.userId())
-                .orElseThrow(() -> new EntityNotFoundException(payload.userId().toString()));
+                .findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(userId.toString()));
 
         final Notebook notebook = Notebook.builder()
-                .title(payload.title())
+                .title(title)
                 .user(user)
                 .build();
 

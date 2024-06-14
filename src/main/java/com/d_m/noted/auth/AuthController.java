@@ -5,21 +5,39 @@ import com.d_m.noted.shared.dtos.auth.SignInDto;
 import com.d_m.noted.shared.dtos.auth.SignUpDto;
 import com.d_m.noted.users.UsersService;
 import com.d_m.noted.users.entities.UserData;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
     private final UsersService usersService;
-
+    private final AuthenticationManager authenticationManager;
+    private final SecurityContextRepository securityContextRepository;
+    private final SecurityContextHolderStrategy securityContextHolderStrategy;
     @Autowired
-    public AuthController(UsersService usersService) {
+    public AuthController(
+            UsersService usersService,
+            AuthenticationManager authenticationManager
+    ) {
         this.usersService = usersService;
+        this.authenticationManager = authenticationManager;
+        this.securityContextRepository = new HttpSessionSecurityContextRepository();
+        this.securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
     }
 
     @PostMapping("/sign-up")
@@ -30,18 +48,26 @@ public class AuthController {
     }
 
     @PostMapping("/sign-in")
-    public ResponseEntity<String> signIn(
-            // get session
-            @RequestBody SignInDto payload
+    public ResponseEntity<Void> signIn(
+            @RequestBody SignInDto payload, HttpServletRequest request, HttpServletResponse response
     ) {
-        final UserData user = this.usersService.findByEmailAndPassword(payload);
-        return ResponseEntity.ok(user.toString());
+        final Authentication authRequest =
+                UsernamePasswordAuthenticationToken
+                        .unauthenticated(
+                                payload.email(),
+                                payload.password()
+                        );
+        final Authentication authentication =  this.authenticationManager.authenticate(authRequest);
+        final SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
+        context.setAuthentication(authentication);
+        this.securityContextHolderStrategy.setContext(context);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/change-password")
     public ResponseEntity<String> changePassword(
             @RequestBody ChangePasswordDto payload
-            ) {
+    ) {
         this.usersService.changePasswordByEmail(payload);
 
         return ResponseEntity.ok("success");
