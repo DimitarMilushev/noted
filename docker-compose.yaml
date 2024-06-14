@@ -1,0 +1,27 @@
+services:
+  backend:
+    image: d_m/noted-docker:latest
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/noted_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    ports:
+      - 9000:9000
+
+  db:
+   image: postgres:latest
+   restart: always
+   environment:
+     POSTGRES_DB: noted_db
+     POSTGRES_USER: postgres
+     POSTGRES_PASSWORD: postgres
+   volumes:
+    - postgres_data:/var/lib/postgresql/data
+   ports:
+     - 8001:5432
+
+volumes:
+  postgres_data:
+

@@ -6,7 +6,7 @@ spring:
     name: "noted"
 
   datasource:
-    url: "jdbc:postgresql://localhost:5432/noted"
+    url: "jdbc:postgresql://db:5432/noted_db"
     username: "postgres"
     password: "postgres"
     driver-class-name: "org.postgresql.Driver"
