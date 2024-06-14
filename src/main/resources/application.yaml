@@ -1,5 +1,5 @@
 server:
-  port: 9000
+  port: 0000 # Adaptable.io requirement
 
 spring:
   application:
