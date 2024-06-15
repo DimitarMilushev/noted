@@ -1,5 +1,6 @@
 # Compile jar file
 FROM ubuntu:latest AS project-build
+RUN echo $SERVER_PORT
 
 RUN apt-get update
 RUN apt-get install openjdk-21-jdk -y
