@@ -1,6 +1,5 @@
 server:
-  port: 0000 # Adaptable.io requirement
-
+  port: ${SERVER_PORT}
 spring:
   application:
     name: "noted"
