@@ -6,9 +6,9 @@ spring:
     name: "noted"
 
   datasource:
-    url: "jdbc:postgresql://db:5432/noted_db"
-    username: "postgres"
-    password: "postgres"
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: "org.postgresql.Driver"
 
   jpa:
@@ -21,9 +21,9 @@ spring:
 
   h2:
     datasource:
-      url: "jdbc:h2:mem:sessions;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE"
-      username: "root"
-      password: "root"
+      url: ${SESSION_DB_URL}
+      username: ${SESSION_DB_USERNAME}
+      password: ${SESSION_DB_PASSWORD}
       driver-class-name: "org.h2.Driver"
       schema: "classpath:org/springframework/session/jdbc/schema-h2.sql"
     console:
