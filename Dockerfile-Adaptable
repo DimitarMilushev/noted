@@ -1,7 +1,6 @@
 FROM openjdk:21-slim-bookworm
 
-COPY /build/libs/noted-0.0.1-SNAPSHOT.jar app.jar
-
+COPY /snapshots/noted-0.0.1-SNAPSHOT.jar app.jar
 COPY .adaptable /.adaptable
 
 ENTRYPOINT ["java","-jar","/app.jar"]
