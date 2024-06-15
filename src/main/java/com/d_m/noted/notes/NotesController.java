@@ -12,7 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/notes")
+@RequestMapping("/api/v1/notes")
 public class NotesController {
     private final NotesService service;
     private final NotesMapper mapper;

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.security.Principal;
 
 @RestController
-@RequestMapping("/notebooks")
+@RequestMapping("/api/v1/notebooks")
 public class NotebooksController {
     private final NotebooksService notebooksService;
 
