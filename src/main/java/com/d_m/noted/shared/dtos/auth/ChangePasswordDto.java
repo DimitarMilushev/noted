@@ -1,13 +1,13 @@
 package com.d_m.noted.shared.dtos.auth;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 
 public record ChangePasswordDto(
-        @NotEmpty
-                //TODO: email format
+        @Email
         String email,
         @NotEmpty
-        // TODO: @lombok.Format(...)
+        // TODO: FORMAT
         String password
 ) {
 }
