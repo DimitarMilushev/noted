@@ -61,13 +61,12 @@ public class AuthController {
         final SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
         context.setAuthentication(authentication);
         this.securityContextHolderStrategy.setContext(context);
+        this.securityContextRepository.saveContext(context, request, response);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/change-password")
-    public ResponseEntity<String> changePassword(
-            @RequestBody ChangePasswordDto payload
-    ) {
+    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordDto payload) {
         this.usersService.changePasswordByEmail(payload);
 
         return ResponseEntity.ok("success");

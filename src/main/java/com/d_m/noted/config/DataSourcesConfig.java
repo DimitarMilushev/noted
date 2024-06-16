@@ -22,20 +22,16 @@ public class DataSourcesConfig {
     @Primary
     @ConfigurationProperties("spring.datasource")
     public DataSourceProperties primaryDataSourceProperties() {
-        final DataSourceProperties p = new DataSourceProperties();
-        System.out.println(p.determineDatabaseName());
-        return p;
+        return new DataSourceProperties();
     }
 
     @Bean
     @Primary
-    public DataSource primaryDataSource() throws SQLException {
-        final DataSource ds =  primaryDataSourceProperties()
+    public DataSource primaryDataSource() {
+        return primaryDataSourceProperties()
                 .initializeDataSourceBuilder()
                 .type(HikariDataSource.class)
                 .build();
-        System.out.println(ds.getConnection().toString());
-        return ds;
     }
 
     @Bean(name = "sessionDataSource")
@@ -44,7 +40,6 @@ public class DataSourcesConfig {
         return new EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
                 .addScript("classpath:session-schema.sql")
-//                .addScript("classpath:drop-session-schema.sql")
                 .build();
     }
 }

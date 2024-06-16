@@ -1,38 +1,33 @@
 package com.d_m.noted.config;
 
 import com.d_m.noted.security.SecurityDetailsService;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
-import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
+import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
 import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
 
 
 @Configuration
-@EnableWebSecurity
-@EnableMethodSecurity
+@EnableWebSecurity(debug = true)
 public class SecurityConfig {
-    private static String[] PUBLIC_ROUTES = {
-            "/auth/sign-in",
-            "/auth/sign-up",
-            "/auth/change-password",
-            "/h2-console" //TODO: REMOVE
+
+    private static String[] LOGGED_OUT_ROUTES = {
+            "/api/v1/auth/sign-in",
+            "/api/v1/auth/sign-up",
+            "/api/v1/auth/change-password"
     };
 
     @Bean
@@ -40,17 +35,16 @@ public class SecurityConfig {
         this.configureLogout(http);
         return http
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers(PUBLIC_ROUTES).permitAll()
+                        .requestMatchers(LOGGED_OUT_ROUTES).anonymous()
                         .anyRequest().authenticated()
                 )
 
                 .sessionManagement((config) -> config
-                        .sessionFixation().changeSessionId()
-                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+                        .addSessionAuthenticationStrategy(new ChangeSessionIdAuthenticationStrategy())
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .headers(HeadersConfigurer::disable)
-                .httpBasic(Customizer.withDefaults())
                 .build();
     }
 
@@ -62,7 +56,7 @@ public class SecurityConfig {
         );
         final var logoutSuccessHandler = new HttpStatusReturningLogoutSuccessHandler();
         http.logout(logout -> logout
-                .logoutUrl("/auth/sign-out")
+                .logoutUrl("/api/v1/auth/sign-out")
                 .addLogoutHandler(clearSiteDataHandler)
                 .logoutSuccessHandler(logoutSuccessHandler)
                 .clearAuthentication(true)
