@@ -1,6 +1,6 @@
-package com.d_m.noted.security;
+package com.d_m.noted.auth;
 
-import com.d_m.noted.security.models.SecurityAuthDetails;
+import com.d_m.noted.auth.models.UserSessionDetails;
 import com.d_m.noted.users.UsersRepository;
 import com.d_m.noted.users.entities.UserData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,11 +10,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SecurityDetailsService implements UserDetailsService {
+public class UserSessionService implements UserDetailsService {
     private final UsersRepository usersRepository;
 
     @Autowired
-    public SecurityDetailsService(UsersRepository usersRepository) {
+    public UserSessionService(UsersRepository usersRepository) {
         this.usersRepository = usersRepository;
     }
 
@@ -24,6 +24,6 @@ public class SecurityDetailsService implements UserDetailsService {
                 .findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Failed to find user " + username));
 
-        return SecurityAuthDetails.fromUserData(userData);
+        return UserSessionDetails.fromUserData(userData);
     }
 }

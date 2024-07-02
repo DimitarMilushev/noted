@@ -1,4 +1,4 @@
-package com.d_m.noted.security.models;
+package com.d_m.noted.auth.models;
 
 import com.d_m.noted.users.entities.UserData;
 import com.d_m.noted.users.enums.UserRole;
@@ -13,16 +13,18 @@ import java.util.List;
 
 @Builder
 @Getter
-public class SecurityAuthDetails implements UserDetails {
+public class UserSessionDetails implements UserDetails {
     private final Long id;
+    private final String email;
     private final String username;
     private final String password;
     private final UserRole role;
 
-    public static SecurityAuthDetails fromUserData(UserData data) {
-        return SecurityAuthDetails.builder()
+    public static UserSessionDetails fromUserData(UserData data) {
+        return UserSessionDetails.builder()
                 .id(data.getId())
-                .username(data.getEmail())
+                .email(data.getEmail())
+                .username(data.getUsername())
                 .password(data.getPassword())
                 .role(data.getRole())
                 .build();

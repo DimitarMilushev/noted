@@ -1,7 +1,9 @@
 package com.d_m.noted.auth;
 
+import com.d_m.noted.auth.models.UserSessionDetails;
 import com.d_m.noted.shared.dtos.auth.ChangePasswordDto;
 import com.d_m.noted.shared.dtos.auth.SignInDto;
+import com.d_m.noted.shared.dtos.auth.SignInResponseDto;
 import com.d_m.noted.shared.dtos.auth.SignUpDto;
 import com.d_m.noted.users.UsersService;
 import com.d_m.noted.users.entities.UserData;
@@ -26,43 +28,31 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
     private final UsersService usersService;
-    private final AuthenticationManager authenticationManager;
-    private final SecurityContextRepository securityContextRepository;
-    private final SecurityContextHolderStrategy securityContextHolderStrategy;
+    private final AuthMapper mapper;
+    private final AuthService service;
     @Autowired
-    public AuthController(
-            UsersService usersService,
-            AuthenticationManager authenticationManager
-    ) {
+    public AuthController(UsersService usersService, AuthService service,  AuthMapper mapper) {
+        this.service = service;
         this.usersService = usersService;
-        this.authenticationManager = authenticationManager;
-        this.securityContextRepository = new HttpSessionSecurityContextRepository();
-        this.securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
+        this.mapper = mapper;
     }
 
     @PostMapping("/sign-up")
-    public ResponseEntity<String> signUp(@RequestBody SignUpDto payload) {
-        final UserData user = this.usersService.createUser(payload);
-        // return session
-        return ResponseEntity.ok(user.toString());
+    public ResponseEntity<Void> signUp(@RequestBody SignUpDto payload) {
+        this.usersService.createUser(payload);
+
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/sign-in")
-    public ResponseEntity<Void> signIn(
+    public ResponseEntity<SignInResponseDto> signIn(
             @RequestBody SignInDto payload, HttpServletRequest request, HttpServletResponse response
     ) {
-        final Authentication authRequest =
-                UsernamePasswordAuthenticationToken
-                        .unauthenticated(
-                                payload.email(),
-                                payload.password()
-                        );
-        final Authentication authentication =  this.authenticationManager.authenticate(authRequest);
-        final SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
-        context.setAuthentication(authentication);
-        this.securityContextHolderStrategy.setContext(context);
-        this.securityContextRepository.saveContext(context, request, response);
-        return ResponseEntity.ok().build();
+        final Authentication auth = service.authenticateUser(payload, request, response);
+        final UserSessionDetails sessionDetails = (UserSessionDetails) auth.getPrincipal();
+
+        final SignInResponseDto responseDto = mapper.userSessionDetailsToSignInResponseDto(sessionDetails);
+        return ResponseEntity.ok(responseDto);
     }
 
     @PostMapping("/change-password")
@@ -71,4 +61,5 @@ public class AuthController {
 
         return ResponseEntity.ok("success");
     }
+
 }

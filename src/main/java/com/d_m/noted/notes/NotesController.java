@@ -1,7 +1,7 @@
 package com.d_m.noted.notes;
 
 import com.d_m.noted.notes.entities.Note;
-import com.d_m.noted.security.models.SecurityAuthDetails;
+import com.d_m.noted.auth.models.UserSessionDetails;
 import com.d_m.noted.shared.dtos.notes.CreateNoteDto;
 import com.d_m.noted.shared.dtos.notes.GetNoteDataResponseDto;
 import com.d_m.noted.shared.dtos.notes.UpdateNoteSharedStatusDto;
@@ -26,7 +26,7 @@ public class NotesController {
     @PatchMapping("/shared-status")
     public ResponseEntity<Void> updateSharedStatus(
             @RequestBody UpdateNoteSharedStatusDto payload,
-            @AuthenticationPrincipal SecurityAuthDetails user
+            @AuthenticationPrincipal UserSessionDetails user
             ) {
         if (!this.service.isOwnerByUserId(payload.noteId(), user.getId())) {
             throw new AccessDeniedException("User " + user.getId() + " doesn't own " + payload.noteId());
@@ -44,7 +44,7 @@ public class NotesController {
     @GetMapping("/{id}")
     public ResponseEntity<GetNoteDataResponseDto> getNoteData(
             @PathVariable Long id,
-            @AuthenticationPrincipal SecurityAuthDetails user
+            @AuthenticationPrincipal UserSessionDetails user
     ) {
         final Note note = this.service.getById(id);
         if (!note.isShared() && !note.getNotebook().getUser().getId().equals(user.getId())) {

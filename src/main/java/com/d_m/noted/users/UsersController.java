@@ -1,6 +1,6 @@
 package com.d_m.noted.users;
 
-import com.d_m.noted.security.models.SecurityAuthDetails;
+import com.d_m.noted.auth.models.UserSessionDetails;
 import com.d_m.noted.shared.dtos.users.LoadDashboardDataDto;
 import com.d_m.noted.users.entities.UserData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class UsersController {
 
     @GetMapping("/dashboard-data")
     public ResponseEntity<LoadDashboardDataDto> getUserWithNotebooks(
-            @AuthenticationPrincipal SecurityAuthDetails user
+            @AuthenticationPrincipal UserSessionDetails user
     ) {
         final UserData userData = this.service.findById(user.getId());
         final LoadDashboardDataDto response = mapper.userToLoadDashboardDataDto(userData);
