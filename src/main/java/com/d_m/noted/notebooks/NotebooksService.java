@@ -27,14 +27,6 @@ public class NotebooksService {
         this.notesRepository = notesRepository;
     }
 
-    public Notebook getById(Long id) {
-        return this.repository
-                .findById(id)
-                .orElseThrow(
-                        () -> new EntityNotFoundException("Failed to find notebook with id " + id)
-                );
-    }
-
     public Notebook createNotebook(String title, Long userId) {
         if (repository.findByTitleAndUserId(title, userId).isPresent()) {
             throw new EntityExistsException("Notebook with title " + title + " already exists");
@@ -51,4 +43,16 @@ public class NotebooksService {
         return this.repository.save(notebook);
     }
 
+    Notebook findByIdAndUserId(Long id, Long userId) {
+        return this.repository
+                .findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Failed to find notebook with id " + id
+                )
+        );
+    }
+
+    Iterable<Notebook> findAllByUserId(Long userId) {
+        return this.repository.findAllByUserId(userId);
+    }
 }

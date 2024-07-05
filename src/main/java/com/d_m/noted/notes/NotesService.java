@@ -4,10 +4,17 @@ import com.d_m.noted.notebooks.NotebooksRepository;
 import com.d_m.noted.notebooks.entities.Notebook;
 import com.d_m.noted.notes.entities.Note;
 import com.d_m.noted.shared.dtos.notes.CreateNoteDto;
+import com.d_m.noted.shared.dtos.notes.UpdateNoteContentDto;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class NotesService {
@@ -50,17 +57,39 @@ public class NotesService {
         return this.repository.save(note);
     }
 
-    public Note changeStatusById(Long id, boolean isShared) {
+    public Note changeStatusById(Long userId, Long id, boolean isShared) {
         final Note note = this.getById(id);
+        checkUserAccess(note, userId);
+
         note.setShared(isShared);
 
         return this.repository.save(note);
     }
 
-    public boolean isOwnerByUserId(Long noteId, Long userId) {
-        final Note note = this.getById(noteId);
+    @Transactional
+    public Note updateContentById(Long userId, Long id, UpdateNoteContentDto payload) {
+        final Note note = this.getById(id);
+        checkUserAccess(note, userId);
+
+        if (payload.title() != null) {
+            note.setTitle(payload.title());
+        }
+        if (payload.content() != null) {
+            note.setContent(payload.content());
+        }
+
+        return repository.save(note);
+    }
+
+    private void checkUserAccess(Note note, Long userId) {
         final Long ownerId = note.getNotebook().getUser().getId();
 
-        return ownerId.equals(userId);
+        if (!ownerId.equals(userId)) {
+            throw new AccessDeniedException("User " + userId + " doesn't have access to " + ownerId);
+        }
+    }
+
+    public List<Note> getLast5UpdatedNotesByUserId(Long userId) {
+        return repository.findTop5ByNotebook_User_IdOrderByUpdatedAtDesc(userId);
     }
 }

@@ -9,4 +9,8 @@ import java.util.Optional;
 @Repository
 public interface NotebooksRepository extends JpaRepository<Notebook, Long> {
     Optional<Notebook> findByTitleAndUserId(String title, Long userId);
+
+    Optional<Notebook> findByIdAndUserId(Long id, Long userId);
+
+    Iterable<Notebook> findAllByUserId(Long userId);
 }

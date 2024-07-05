@@ -32,12 +32,12 @@ public abstract class BaseDatedEntity extends BaseEntity {
         this.setUpdatedAt(ZonedDateTime.now());
     }
 
-    @PostUpdate
+    @PreUpdate
     protected void onPostUpdate() {
         this.setUpdatedAt(ZonedDateTime.now());
     }
 
-    @PostRemove
+    @PreRemove
     protected void onPostRemove() {
         this.setDeletedAt(ZonedDateTime.now());
     }
