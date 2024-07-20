@@ -10,13 +10,15 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 public class NotebooksService {
     private final NotebooksRepository repository;
     private final UsersService usersService;
 
-    public Notebook createNotebook(String title, UserPrincipal user) {
+    public Notebook createNotebook(String title, Long userId, UserPrincipal user) {
         if (repository.findByTitleAndUserId(title, user.getId()).isPresent()) {
             throw new EntityExistsException("Notebook with title " + title + " already exists");
         }
@@ -41,7 +43,7 @@ public class NotebooksService {
         return notebook;
     }
 
-    Iterable<Notebook> findAllByUserId(Long userId) {
+    List<Notebook> findAllByUserId(Long userId) {
         return this.repository.findAllByUserId(userId);
     }
 

@@ -4,6 +4,7 @@ import com.d_m.noted.notebooks.entities.Notebook;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -12,5 +13,5 @@ public interface NotebooksRepository extends JpaRepository<Notebook, Long> {
 
     Optional<Notebook> findByIdAndUserId(Long id, Long userId);
 
-    Iterable<Notebook> findAllByUserId(Long userId);
+    List<Notebook> findAllByUserId(Long userId);
 }

@@ -24,7 +24,6 @@ public class AuthController {
     @PostMapping("/sign-up")
     public ResponseEntity<Void> signUp(@RequestBody SignUpDto payload) {
         this.usersService.createUser(payload);
-
         return ResponseEntity.ok().build();
     }
 

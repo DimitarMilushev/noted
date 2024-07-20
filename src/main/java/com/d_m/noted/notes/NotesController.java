@@ -53,7 +53,7 @@ public class NotesController {
             @AuthenticationPrincipal UserPrincipal user
     ) {
         final Note note = this.service.getById(id, user);
-        final GetNoteDataResponseDto response = mapper.noteToGetNoteDataResponseDto(note);
+        final GetNoteDataResponseDto response = this.mapper.noteToGetNoteDataResponseDto(note);
 
         return ResponseEntity.ok(response);
     }
@@ -65,7 +65,7 @@ public class NotesController {
             @AuthenticationPrincipal UserPrincipal user
     ) {
         final Note updated = this.service.updateContentById(id, payload, user);
-        final GetNoteDataResponseDto response = mapper.noteToGetNoteDataResponseDto(updated);
+        final GetNoteDataResponseDto response = this.mapper.noteToGetNoteDataResponseDto(updated);
 
         return ResponseEntity.ok(response);
     }
@@ -75,9 +75,9 @@ public class NotesController {
             @AuthenticationPrincipal UserPrincipal user
     ) {
         final List<Note> notes = this.service.getLast5UpdatedNotesByUserId(user.getId());
-        final Iterable<GetNoteDataResponseDto> response = notes
+        final List<GetNoteDataResponseDto> response = notes
                 .stream()
-                .map(mapper::noteToGetNoteDataResponseDto)
+                .map(this.mapper::noteToGetNoteDataResponseDto)
                 .toList();
 
         return ResponseEntity.ok(response);

@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -18,13 +18,13 @@ public class NotebooksController {
     private final NotebooksMapper mapper;
 
     @PostMapping
-    public ResponseEntity<GetNotebookByUserIdResponseDto> createNotebook(
+    public ResponseEntity<CreateNotebookResponseDto> createNotebook(
             @RequestBody CreateNotebookDto payload,
             @AuthenticationPrincipal UserPrincipal user
     ) {
-        final Notebook notebook = this.notebooksService.createNotebook(payload.title(), user.getId());
-        final var response = this.mapper.notebookToGetNotebookByUserIdResponseDto(notebook);
-        //TOdO: create separate dto
+        final Notebook notebook = this.notebooksService.createNotebook(payload.title(), user.getId(), user);
+        final CreateNotebookResponseDto response = this.mapper.notebookToCreateNotebookResponseDto(notebook);
+
         return ResponseEntity.ok(response);
     }
 
@@ -55,7 +55,7 @@ public class NotebooksController {
             @AuthenticationPrincipal UserPrincipal user
     ) {
         final Notebook notebook = this.notebooksService.getById(id, user);
-        final var response = this.mapper.notebookToGetNotebookDetailsResponseDto(notebook);
+        final GetNotebookDetailsResponseDto response = this.mapper.notebookToGetNotebookDetailsResponseDto(notebook);
 
         return ResponseEntity.ok(response);
     }
@@ -64,9 +64,11 @@ public class NotebooksController {
     public ResponseEntity<Iterable<GetNotebookByUserIdResponseDto>> getAllNotebooksForUser(
             @AuthenticationPrincipal UserPrincipal user
     ) {
-        final var notebooks = this.notebooksService.findAllByUserId(user.getId());
-        final var response = new ArrayList<GetNotebookByUserIdResponseDto>();
-        notebooks.forEach(nb -> response.add(this.mapper.notebookToGetNotebookByUserIdResponseDto(nb)));
+        final List<Notebook> notebooks = this.notebooksService.findAllByUserId(user.getId());
+        final List<GetNotebookByUserIdResponseDto> response = notebooks
+                .stream()
+                .map(this.mapper::notebookToGetNotebookByUserIdResponseDto)
+                .toList();
 
         return ResponseEntity.ok(response);
     }

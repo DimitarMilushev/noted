@@ -6,6 +6,7 @@ import com.d_m.noted.shared.dtos.auth.ChangePasswordDto;
 import com.d_m.noted.shared.dtos.auth.SignInDto;
 import com.d_m.noted.shared.dtos.auth.SignUpDto;
 import com.d_m.noted.users.entities.UserData;
+import com.d_m.noted.users.enums.UserRole;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
@@ -27,7 +28,8 @@ public class UsersService {
         UserData user = UserData.builder()
                 .email(payload.email())
                 .username(payload.username())
-                .password(passwordEncoder.encode(payload.password())).build();
+                .password(passwordEncoder.encode(payload.password()))
+                .build();
 
         return this.repository.save(user);
     }
