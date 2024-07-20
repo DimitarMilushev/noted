@@ -1,10 +1,9 @@
 package com.d_m.noted.auth;
 
-import com.d_m.noted.auth.models.UserSessionDetails;
+import com.d_m.noted.auth.models.UserPrincipal;
 import com.d_m.noted.users.UsersRepository;
 import com.d_m.noted.users.entities.UserData;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,6 +20,6 @@ public class UserSessionService implements UserDetailsService {
                 .findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Failed to find user " + username));
 
-        return UserSessionDetails.fromUserData(userData);
+        return UserPrincipal.fromUserData(userData);
     }
 }

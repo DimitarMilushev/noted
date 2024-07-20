@@ -1,5 +1,6 @@
 package com.d_m.noted.notebooks;
 
+import com.d_m.noted.auth.models.UserPrincipal;
 import com.d_m.noted.notebooks.entities.Notebook;
 import com.d_m.noted.users.UsersService;
 import com.d_m.noted.users.entities.UserData;
@@ -15,48 +16,42 @@ public class NotebooksService {
     private final NotebooksRepository repository;
     private final UsersService usersService;
 
-    public Notebook createNotebook(String title, Long userId) {
-        if (repository.findByTitleAndUserId(title, userId).isPresent()) {
+    public Notebook createNotebook(String title, UserPrincipal user) {
+        if (repository.findByTitleAndUserId(title, user.getId()).isPresent()) {
             throw new EntityExistsException("Notebook with title " + title + " already exists");
         }
-        final UserData user = this.usersService.findById(userId);
+        final UserData userData = this.usersService.getById(user.getId(), user);
         final Notebook notebook = Notebook.builder()
                 .title(title)
-                .user(user)
+                .user(userData)
                 .build();
 
         return this.repository.save(notebook);
     }
 
-    public Notebook getById(Long id, Long userId) {
-        return this.repository
-                .findByIdAndUserId(id, userId)
+    public Notebook getById(Long id, UserPrincipal user) {
+        final Notebook notebook = this.repository
+                .findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Failed to find notebook with id " + id
                 )
         );
+        if (!user.isAdmin()) checkResourceAccessByUserId(notebook, user.getId());
+
+        return notebook;
     }
 
     Iterable<Notebook> findAllByUserId(Long userId) {
         return this.repository.findAllByUserId(userId);
     }
 
-    public void deleteById(Long id, Long userId) {
-        final Notebook notebook = this.repository.findById(id).orElseThrow(() ->
-                 new EntityNotFoundException(
-                        "Failed to find notebook with id " + id
-                ));
-        checkResourceAccessByUserId(notebook, userId);
-
+    public void deleteById(Long id, UserPrincipal user) {
+        final Notebook notebook = this.getById(id, user);
         this.repository.delete(notebook);
     }
 
-    public Notebook updateTitle(Long id, String title, Long userId) {
-        final Notebook notebook = this.repository.findById(id).orElseThrow(() ->
-                new EntityNotFoundException(
-                        "Failed to find notebook with id " + id
-                ));
-        checkResourceAccessByUserId(notebook, userId);
+    public Notebook updateTitle(Long id, String title, UserPrincipal user) {
+        final Notebook notebook = this.getById(id, user);
         notebook.setTitle(title);
 
         return this.repository.save(notebook);
@@ -66,8 +61,7 @@ public class NotebooksService {
         final Long ownerId = notebook.getUser().getId();
 
         if (!ownerId.equals(userId)) {
-            throw new AccessDeniedException("User " + userId + " doesn't have access to " + ownerId);
+            throw new AccessDeniedException("User " + userId + " doesn't have access to " + notebook.getId());
         }
     }
-
 }

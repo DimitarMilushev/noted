@@ -1,16 +1,15 @@
 package com.d_m.noted.users;
 
+import com.d_m.noted.auth.models.UserPrincipal;
+import com.d_m.noted.notebooks.entities.Notebook;
 import com.d_m.noted.shared.dtos.auth.ChangePasswordDto;
 import com.d_m.noted.shared.dtos.auth.SignInDto;
 import com.d_m.noted.shared.dtos.auth.SignUpDto;
 import com.d_m.noted.users.entities.UserData;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,19 +18,6 @@ import org.springframework.stereotype.Service;
 public class UsersService {
     private final UsersRepository repository;
     private final PasswordEncoder passwordEncoder;
-
-    public UserData findByEmailAndPassword(SignInDto payload) {
-        final UserData user = this.repository
-                .findByEmail(payload.email())
-                .orElseThrow(
-                        () -> new EntityNotFoundException("Failed to find user with email " +
-                                "and password combination")
-                );
-        if (!passwordEncoder.matches(payload.password(), user.getPassword())) {
-            throw new EntityNotFoundException("Failed to find user with email and password combination");
-        }
-        return user;
-    }
 
     public UserData createUser(SignUpDto payload) {
         if (this.repository.existsByEmail(payload.email())) {
@@ -46,8 +32,11 @@ public class UsersService {
         return this.repository.save(user);
     }
 
-    public UserData findById(Long id) {
-        return this.repository.findById(id).orElseThrow(EntityNotFoundException::new);
+    public UserData getById(Long id, UserPrincipal user) {
+        final UserData userData = this.repository.findById(id).orElseThrow(EntityNotFoundException::new);
+        if (!user.isAdmin()) checkResourceAccessByUserId(userData, user.getId());
+
+        return userData;
     }
 
     public void changePasswordByEmail(ChangePasswordDto payload) {
@@ -63,5 +52,13 @@ public class UsersService {
 
         user.setPassword(this.passwordEncoder.encode(payload.password()));
         this.repository.save(user);
+    }
+
+    private void checkResourceAccessByUserId(UserData userData, Long userId) {
+        final Long ownerId = userData.getId();
+
+        if (!ownerId.equals(userId)) {
+            throw new AccessDeniedException("User " + userId + " doesn't have access to " + userData.getId());
+        }
     }
 }

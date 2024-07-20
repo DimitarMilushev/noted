@@ -1,7 +1,7 @@
 package com.d_m.noted.notebooks;
 
+import com.d_m.noted.auth.models.UserPrincipal;
 import com.d_m.noted.notebooks.entities.Notebook;
-import com.d_m.noted.auth.models.UserSessionDetails;
 import com.d_m.noted.shared.dtos.notebooks.*;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +20,7 @@ public class NotebooksController {
     @PostMapping
     public ResponseEntity<GetNotebookByUserIdResponseDto> createNotebook(
             @RequestBody CreateNotebookDto payload,
-            @AuthenticationPrincipal UserSessionDetails user
+            @AuthenticationPrincipal UserPrincipal user
     ) {
         final Notebook notebook = this.notebooksService.createNotebook(payload.title(), user.getId());
         final var response = this.mapper.notebookToGetNotebookByUserIdResponseDto(notebook);
@@ -31,9 +31,9 @@ public class NotebooksController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNotebook(
             @PathVariable Long id,
-            @AuthenticationPrincipal UserSessionDetails user
+            @AuthenticationPrincipal UserPrincipal user
     ) {
-        this.notebooksService.deleteById(id, user.getId());
+        this.notebooksService.deleteById(id, user);
         return ResponseEntity.ok().build();
     }
 
@@ -41,9 +41,9 @@ public class NotebooksController {
     public ResponseEntity<UpdateNotebookTitleResponseDto> updateNotebookTitle(
             @PathVariable Long id,
             @RequestBody UpdateNotebookTitleDto payload,
-            @AuthenticationPrincipal UserSessionDetails user
+            @AuthenticationPrincipal UserPrincipal user
     ) {
-        final Notebook notebook = this.notebooksService.updateTitle(id, payload.title(), user.getId());
+        final Notebook notebook = this.notebooksService.updateTitle(id, payload.title(), user);
         final UpdateNotebookTitleResponseDto response = this.mapper.notebookToUpdateNotebookTitleResponseDto(notebook);
 
         return ResponseEntity.ok(response);
@@ -52,9 +52,9 @@ public class NotebooksController {
     @GetMapping("/details/{id}")
     public ResponseEntity<GetNotebookDetailsResponseDto> getNotebookDetails(
             @PathVariable Long id,
-            @AuthenticationPrincipal UserSessionDetails user
+            @AuthenticationPrincipal UserPrincipal user
     ) {
-        final Notebook notebook = this.notebooksService.getById(id, user.getId());
+        final Notebook notebook = this.notebooksService.getById(id, user);
         final var response = this.mapper.notebookToGetNotebookDetailsResponseDto(notebook);
 
         return ResponseEntity.ok(response);
@@ -62,10 +62,9 @@ public class NotebooksController {
 
     @GetMapping("/all")
     public ResponseEntity<Iterable<GetNotebookByUserIdResponseDto>> getAllNotebooksForUser(
-            @AuthenticationPrincipal UserSessionDetails user
+            @AuthenticationPrincipal UserPrincipal user
     ) {
         final var notebooks = this.notebooksService.findAllByUserId(user.getId());
-
         final var response = new ArrayList<GetNotebookByUserIdResponseDto>();
         notebooks.forEach(nb -> response.add(this.mapper.notebookToGetNotebookByUserIdResponseDto(nb)));
 

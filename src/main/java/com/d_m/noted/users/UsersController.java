@@ -1,10 +1,9 @@
 package com.d_m.noted.users;
 
-import com.d_m.noted.auth.models.UserSessionDetails;
+import com.d_m.noted.auth.models.UserPrincipal;
 import com.d_m.noted.shared.dtos.users.LoadDashboardDataDto;
 import com.d_m.noted.users.entities.UserData;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -18,9 +17,9 @@ public class UsersController {
 
     @GetMapping("/dashboard-data")
     public ResponseEntity<LoadDashboardDataDto> getUserWithNotebooks(
-            @AuthenticationPrincipal UserSessionDetails user
+            @AuthenticationPrincipal UserPrincipal user
     ) {
-        final UserData userData = this.service.findById(user.getId());
+        final UserData userData = this.service.getById(user.getId(), user);
         final LoadDashboardDataDto response = mapper.userToLoadDashboardDataDto(userData);
         return ResponseEntity.ok(response);
     }

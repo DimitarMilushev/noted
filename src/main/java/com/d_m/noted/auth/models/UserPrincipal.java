@@ -13,21 +13,25 @@ import java.util.List;
 
 @Builder
 @Getter
-public class UserSessionDetails implements UserDetails {
+public class UserPrincipal implements UserDetails {
     private final Long id;
     private final String email;
     private final String username;
     private final String password;
     private final UserRole role;
 
-    public static UserSessionDetails fromUserData(UserData data) {
-        return UserSessionDetails.builder()
+    public static UserPrincipal fromUserData(UserData data) {
+        return UserPrincipal.builder()
                 .id(data.getId())
                 .email(data.getEmail())
                 .username(data.getUsername())
                 .password(data.getPassword())
                 .role(data.getRole())
                 .build();
+    }
+
+    public boolean isAdmin() {
+        return this.role == UserRole.ADMIN;
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

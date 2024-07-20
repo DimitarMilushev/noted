@@ -1,5 +1,6 @@
 package com.d_m.noted.notes;
 
+import com.d_m.noted.auth.models.UserPrincipal;
 import com.d_m.noted.notebooks.NotebooksService;
 import com.d_m.noted.notebooks.entities.Notebook;
 import com.d_m.noted.notes.entities.Note;
@@ -18,16 +19,19 @@ public class NotesService {
     private final NotesRepository repository;
     private final NotebooksService notebooksService;
 
-    public Note getById(Long id, Long userId) {
-        return this.repository
+    public Note getById(Long id, UserPrincipal user) {
+        final Note note = this.repository
                 .findById(id)
                 .orElseThrow(
                         () -> new EntityNotFoundException("Failed to find note with id " + id)
                 );
+        if(!user.isAdmin()) checkResourceAccessByUserId(note, user.getId());
+
+        return note;
     }
 
-    public Note createNote(CreateNoteDto payload, Long userId) {
-        final Notebook notebook = this.notebooksService.getById(payload.notebookId(),userId);
+    public Note createNote(CreateNoteDto payload, UserPrincipal user) {
+        final Notebook notebook = this.notebooksService.getById(payload.notebookId(), user);
         final Note note = Note.builder()
                 .title(payload.title())
                 .notebook(notebook)
@@ -37,25 +41,17 @@ public class NotesService {
         return this.repository.save(note);
     }
 
-    public void changeStatusById(Long userId, Long id, boolean isShared) {
-        final Note note = this.getById(id, userId);
-        checkResourceAccessByUserId(note, userId);
-
+    public void changeStatusById(Long id, boolean isShared, UserPrincipal user) {
+        final Note note = this.getById(id, user);
         note.setShared(isShared);
 
         this.repository.save(note);
     }
 
-    public Note updateContentById(Long userId, Long id, UpdateNoteContentDto payload) {
-        final Note note = this.getById(id, userId);
-        checkResourceAccessByUserId(note, userId);
-
-        if (payload.title() != null) {
-            note.setTitle(payload.title());
-        }
-        if (payload.content() != null) {
-            note.setContent(payload.content());
-        }
+    public Note updateContentById(Long id, UpdateNoteContentDto payload, UserPrincipal user) {
+        final Note note = this.getById(id, user);
+        if (payload.title() != null) note.setTitle(payload.title());
+        if (payload.content() != null) note.setContent(payload.content());
 
         return repository.save(note);
     }
@@ -64,7 +60,7 @@ public class NotesService {
         final Long ownerId = note.getNotebook().getUser().getId();
 
         if (!ownerId.equals(userId)) {
-            throw new AccessDeniedException("User " + userId + " doesn't have access to " + ownerId);
+            throw new AccessDeniedException("User " + userId + " doesn't have access to " + note.getId());
         }
     }
 
@@ -72,10 +68,8 @@ public class NotesService {
         return repository.findTop5ByNotebook_User_IdOrderByUpdatedAtDesc(userId);
     }
 
-    public void deleteById(Long id, Long userId) {
-        final Note note = this.getById(id, userId);
-        checkResourceAccessByUserId(note, userId);
-
+    public void deleteById(Long id, UserPrincipal user) {
+        final Note note = this.getById(id, user);
         this.repository.delete(note);
     }
 }
