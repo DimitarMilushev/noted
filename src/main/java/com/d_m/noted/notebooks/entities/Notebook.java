@@ -24,6 +24,6 @@ public class Notebook extends BaseDatedEntity {
     @JoinColumn(name = "user_id")
     UserData user;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "notebook")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "notebook", cascade = { CascadeType.REMOVE })
     List<Note> notes;
 }

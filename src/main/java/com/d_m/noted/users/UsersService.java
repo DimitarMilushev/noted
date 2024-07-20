@@ -7,6 +7,7 @@ import com.d_m.noted.users.entities.UserData;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
@@ -14,19 +15,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-@Transactional
+@AllArgsConstructor
 public class UsersService {
     private final UsersRepository repository;
     private final PasswordEncoder passwordEncoder;
-
-    @Autowired
-    public UsersService(
-            UsersRepository repository,
-            @Lazy PasswordEncoder passwordEncoder
-    ) {
-        this.repository = repository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     public UserData findByEmailAndPassword(SignInDto payload) {
         final UserData user = this.repository

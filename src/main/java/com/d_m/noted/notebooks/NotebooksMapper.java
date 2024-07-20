@@ -5,6 +5,7 @@ import com.d_m.noted.notes.entities.Note;
 import com.d_m.noted.shared.dtos.notebooks.GetNotebookByUserIdResponseDto;
 import com.d_m.noted.shared.dtos.notebooks.GetNotebookDetailsResponseDto;
 import com.d_m.noted.shared.dtos.notebooks.NotePreviewDetailsDto;
+import com.d_m.noted.shared.dtos.notebooks.UpdateNotebookTitleResponseDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -24,4 +25,7 @@ public interface NotebooksMapper {
     @Mapping(target = "dateCreated", source = "createdAt")
     @Mapping(target = "lastUpdated", source = "updatedAt")
     GetNotebookByUserIdResponseDto notebookToGetNotebookByUserIdResponseDto(Notebook notebook);
+
+    @Mapping(target = "lastUpdated", source = "updatedAt")
+    UpdateNotebookTitleResponseDto notebookToUpdateNotebookTitleResponseDto(Notebook notebook);
 }

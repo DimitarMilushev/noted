@@ -9,6 +9,7 @@ import com.d_m.noted.users.UsersService;
 import com.d_m.noted.users.entities.UserData;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
@@ -26,16 +27,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
+@AllArgsConstructor
 public class AuthController {
     private final UsersService usersService;
     private final AuthMapper mapper;
     private final AuthService service;
-    @Autowired
-    public AuthController(UsersService usersService, AuthService service,  AuthMapper mapper) {
-        this.service = service;
-        this.usersService = usersService;
-        this.mapper = mapper;
-    }
 
     @PostMapping("/sign-up")
     public ResponseEntity<Void> signUp(@RequestBody SignUpDto payload) {

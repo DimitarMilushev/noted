@@ -1,36 +1,24 @@
 package com.d_m.noted.notes;
 
-import com.d_m.noted.notebooks.NotebooksRepository;
+import com.d_m.noted.notebooks.NotebooksService;
 import com.d_m.noted.notebooks.entities.Notebook;
 import com.d_m.noted.notes.entities.Note;
 import com.d_m.noted.shared.dtos.notes.CreateNoteDto;
 import com.d_m.noted.shared.dtos.notes.UpdateNoteContentDto;
-import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import lombok.AllArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class NotesService {
     private final NotesRepository repository;
-    private final NotebooksRepository notebooksRepository;
+    private final NotebooksService notebooksService;
 
-    @Autowired
-    public NotesService(
-            NotesRepository repository,
-            NotebooksRepository notebooksRepository
-    ) {
-        this.repository = repository;
-        this.notebooksRepository = notebooksRepository;
-    }
-
-    public Note getById(Long id) {
+    public Note getById(Long id, Long userId) {
         return this.repository
                 .findById(id)
                 .orElseThrow(
@@ -38,16 +26,8 @@ public class NotesService {
                 );
     }
 
-    public Note createNote(CreateNoteDto payload) {
-        if (this.repository.findByTitleAndNotebookId(payload.title(), payload.notebookId()).isPresent()) {
-            throw new EntityExistsException("Note " + payload.title() + " already exists in notebook " + payload.notebookId());
-        }
-        final Notebook notebook = this.notebooksRepository
-                .findById(payload.notebookId())
-                .orElseThrow(
-                        () -> new EntityNotFoundException("Failed to find notebook with id " + payload.notebookId())
-                );
-
+    public Note createNote(CreateNoteDto payload, Long userId) {
+        final Notebook notebook = this.notebooksService.getById(payload.notebookId(),userId);
         final Note note = Note.builder()
                 .title(payload.title())
                 .notebook(notebook)
@@ -57,19 +37,18 @@ public class NotesService {
         return this.repository.save(note);
     }
 
-    public Note changeStatusById(Long userId, Long id, boolean isShared) {
-        final Note note = this.getById(id);
-        checkUserAccess(note, userId);
+    public void changeStatusById(Long userId, Long id, boolean isShared) {
+        final Note note = this.getById(id, userId);
+        checkResourceAccessByUserId(note, userId);
 
         note.setShared(isShared);
 
-        return this.repository.save(note);
+        this.repository.save(note);
     }
 
-    @Transactional
     public Note updateContentById(Long userId, Long id, UpdateNoteContentDto payload) {
-        final Note note = this.getById(id);
-        checkUserAccess(note, userId);
+        final Note note = this.getById(id, userId);
+        checkResourceAccessByUserId(note, userId);
 
         if (payload.title() != null) {
             note.setTitle(payload.title());
@@ -81,7 +60,7 @@ public class NotesService {
         return repository.save(note);
     }
 
-    private void checkUserAccess(Note note, Long userId) {
+    private void checkResourceAccessByUserId(Note note, Long userId) {
         final Long ownerId = note.getNotebook().getUser().getId();
 
         if (!ownerId.equals(userId)) {
@@ -91,5 +70,12 @@ public class NotesService {
 
     public List<Note> getLast5UpdatedNotesByUserId(Long userId) {
         return repository.findTop5ByNotebook_User_IdOrderByUpdatedAtDesc(userId);
+    }
+
+    public void deleteById(Long id, Long userId) {
+        final Note note = this.getById(id, userId);
+        checkResourceAccessByUserId(note, userId);
+
+        this.repository.delete(note);
     }
 }
