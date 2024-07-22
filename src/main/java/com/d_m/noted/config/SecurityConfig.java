@@ -1,6 +1,7 @@
 package com.d_m.noted.config;
 
 import com.d_m.noted.auth.UserSessionService;
+import com.d_m.noted.error_handling.AuthenticationExceptionHandler;
 import com.d_m.noted.users.enums.UserRole;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -61,6 +62,7 @@ public class SecurityConfig {
                 .requestMatchers(ADMIN_ROUTES).hasRole(UserRole.ADMIN.getStringifiedValue())
                 .anyRequest().authenticated()
         );
+        http.exceptionHandling((handling) -> handling.authenticationEntryPoint((new AuthenticationExceptionHandler())));
 
         // Session management
         http.sessionManagement((config) -> config
