@@ -1,7 +1,7 @@
 package com.d_m.noted.config;
 
 import com.d_m.noted.auth.UserSessionService;
-import com.d_m.noted.error_handling.AuthenticationExceptionHandler;
+import com.d_m.noted.exception_handling.AuthenticationExceptionHandler;
 import com.d_m.noted.users.enums.UserRole;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

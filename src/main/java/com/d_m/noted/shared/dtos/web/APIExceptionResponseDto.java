@@ -1,6 +1,7 @@
 package com.d_m.noted.shared.dtos.web;
 
 import lombok.Builder;
+import org.springframework.http.HttpStatus;
 
 import java.io.Serializable;
 import java.net.URI;
@@ -21,4 +22,14 @@ public record APIExceptionResponseDto(
         int status,
         String detail,
         URI instance
-) implements Serializable { }
+) implements Serializable {
+    public static APIExceptionResponseDto fromHttpStatus(URI type, String detail, URI instance, HttpStatus httpStatus) {
+        return APIExceptionResponseDto.builder()
+                .type(type)
+                .title(httpStatus.getReasonPhrase())
+                .status(httpStatus.value())
+                .detail(detail)
+                .instance(instance)
+                .build();
+    }
+}

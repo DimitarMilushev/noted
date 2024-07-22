@@ -1,4 +1,4 @@
-package com.d_m.noted.error_handling;
+package com.d_m.noted.exception_handling;
 
 import com.d_m.noted.shared.dtos.web.APIExceptionResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,7 +19,7 @@ public class AuthenticationExceptionHandler implements AuthenticationEntryPoint 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
         final APIExceptionResponseDto data = APIExceptionResponseDto.builder()
-                .type(URI.create("https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401"))
+                .type(URI.create("https://developer.mozilla.org/docs/Web/HTTP/Status/401"))
                 .title("Unauthorized")
                 .status(HttpServletResponse.SC_UNAUTHORIZED)
                 .detail("You are not authorized to perform this action.")

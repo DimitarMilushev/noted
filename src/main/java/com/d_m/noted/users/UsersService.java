@@ -1,12 +1,9 @@
 package com.d_m.noted.users;
 
 import com.d_m.noted.auth.models.UserPrincipal;
-import com.d_m.noted.notebooks.entities.Notebook;
 import com.d_m.noted.shared.dtos.auth.ChangePasswordDto;
-import com.d_m.noted.shared.dtos.auth.SignInDto;
 import com.d_m.noted.shared.dtos.auth.SignUpDto;
 import com.d_m.noted.users.entities.UserData;
-import com.d_m.noted.users.enums.UserRole;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
