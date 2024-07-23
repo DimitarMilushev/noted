@@ -6,9 +6,12 @@ import com.d_m.noted.shared.dtos.notes.CreateNoteDto;
 import com.d_m.noted.shared.dtos.notes.GetNoteDataResponseDto;
 import com.d_m.noted.shared.dtos.notes.UpdateNoteContentDto;
 import com.d_m.noted.shared.dtos.notes.UpdateNoteSharedStatusDto;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,13 +19,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/notes")
 @AllArgsConstructor
+@Validated
 public class NotesController {
     private final NotesService service;
     private final NotesMapper mapper;
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNoteById(
-            @PathVariable Long id,
+            @PathVariable @Positive  Long id,
             @AuthenticationPrincipal UserPrincipal user
     ) {
         this.service.deleteById(id, user);
@@ -31,7 +35,7 @@ public class NotesController {
 
     @PatchMapping("/shared-status")
     public ResponseEntity<Void> updateSharedStatus(
-            @RequestBody UpdateNoteSharedStatusDto payload,
+            @RequestBody @Valid UpdateNoteSharedStatusDto payload,
             @AuthenticationPrincipal UserPrincipal user
     ) {
         this.service.changeStatusById(payload.noteId(), payload.isShared(), user);
@@ -40,7 +44,7 @@ public class NotesController {
 
     @PostMapping
     public ResponseEntity<String> createNote(
-            @RequestBody CreateNoteDto payload,
+            @RequestBody @Valid CreateNoteDto payload,
             @AuthenticationPrincipal UserPrincipal user
     ) {
         final Note note = this.service.createNote(payload, user);
@@ -49,7 +53,7 @@ public class NotesController {
 
     @GetMapping("/{id}")
     public ResponseEntity<GetNoteDataResponseDto> getNoteData(
-            @PathVariable Long id,
+            @PathVariable @Positive Long id,
             @AuthenticationPrincipal UserPrincipal user
     ) {
         final Note note = this.service.getById(id, user);
@@ -60,8 +64,8 @@ public class NotesController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<GetNoteDataResponseDto> updateNoteContent(
-            @PathVariable Long id,
-            @RequestBody UpdateNoteContentDto payload,
+            @PathVariable @Positive Long id,
+            @RequestBody @Valid UpdateNoteContentDto payload,
             @AuthenticationPrincipal UserPrincipal user
     ) {
         final Note updated = this.service.updateContentById(id, payload, user);

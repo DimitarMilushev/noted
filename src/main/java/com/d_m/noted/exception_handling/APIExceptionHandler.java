@@ -1,6 +1,7 @@
 package com.d_m.noted.exception_handling;
 
 import com.d_m.noted.shared.dtos.web.APIExceptionResponseDto;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataAccessException;
@@ -10,7 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
@@ -18,12 +21,16 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.net.URI;
+import java.util.Arrays;
 
 @ControllerAdvice
 public class APIExceptionHandler extends ResponseEntityExceptionHandler {
     //400
     @ExceptionHandler({ ConstraintViolationException.class })
-    public ResponseEntity<Object> handleBadRequest(final ConstraintViolationException ex, final ServletWebRequest request) {
+    public ResponseEntity<Object> handleConstraintViolation(
+            final ConstraintViolationException ex,
+            final ServletWebRequest request
+    ) {
         logger.info(HttpStatus.BAD_REQUEST.toString(), ex);
         final APIExceptionResponseDto data = APIExceptionResponseDto.fromHttpStatus(
                 URI.create("https://developer.mozilla.org/docs/Web/HTTP/Status/400"),
@@ -32,6 +39,30 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.BAD_REQUEST
         );
         return handleExceptionInternal(ex, data, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request
+    ) {
+        String message = "";
+        if (ex.hasFieldErrors()) {
+            final FieldError fieldError = ex.getFieldError();
+            message = fieldError.getField() + " " + fieldError.getDefaultMessage();
+        } else {
+            message = ex.getMessage();
+        }
+
+        final APIExceptionResponseDto data = APIExceptionResponseDto.fromHttpStatus(
+                URI.create("https://developer.mozilla.org/docs/Web/HTTP/Status/400"),
+                message,
+                URI.create(((ServletWebRequest) request).getRequest().getRequestURI()),
+                HttpStatus.BAD_REQUEST
+        );
+        return this.handleExceptionInternal(ex, data, headers, status, request);
     }
 
     // 403
@@ -74,7 +105,7 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     // 409
-    @ExceptionHandler({ InvalidDataAccessApiUsageException.class, DataAccessException.class })
+    @ExceptionHandler({ InvalidDataAccessApiUsageException.class, DataAccessException.class, EntityExistsException.class })
     public ResponseEntity<Object> handleConflict(final RuntimeException ex, final ServletWebRequest request) {
         logger.info(HttpStatus.CONFLICT.toString(), ex);
         final APIExceptionResponseDto data = APIExceptionResponseDto.fromHttpStatus(

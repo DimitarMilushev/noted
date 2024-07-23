@@ -3,15 +3,19 @@ package com.d_m.noted.notebooks;
 import com.d_m.noted.auth.models.UserPrincipal;
 import com.d_m.noted.notebooks.entities.Notebook;
 import com.d_m.noted.shared.dtos.notebooks.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @AllArgsConstructor
+@Validated
 @RequestMapping("/api/v1/notebooks")
 public class NotebooksController {
     private final NotebooksService notebooksService;
@@ -19,7 +23,7 @@ public class NotebooksController {
 
     @PostMapping
     public ResponseEntity<CreateNotebookResponseDto> createNotebook(
-            @RequestBody CreateNotebookDto payload,
+            @RequestBody @Valid CreateNotebookDto payload,
             @AuthenticationPrincipal UserPrincipal user
     ) {
         final Notebook notebook = this.notebooksService.createNotebook(payload.title(), user.getId(), user);
@@ -30,7 +34,7 @@ public class NotebooksController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNotebook(
-            @PathVariable Long id,
+            @PathVariable @Positive Long id,
             @AuthenticationPrincipal UserPrincipal user
     ) {
         this.notebooksService.deleteById(id, user);
@@ -39,8 +43,8 @@ public class NotebooksController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<UpdateNotebookTitleResponseDto> updateNotebookTitle(
-            @PathVariable Long id,
-            @RequestBody UpdateNotebookTitleDto payload,
+            @PathVariable @Positive Long id,
+            @RequestBody @Valid UpdateNotebookTitleDto payload,
             @AuthenticationPrincipal UserPrincipal user
     ) {
         final Notebook notebook = this.notebooksService.updateTitle(id, payload.title(), user);
@@ -51,7 +55,7 @@ public class NotebooksController {
 
     @GetMapping("/details/{id}")
     public ResponseEntity<GetNotebookDetailsResponseDto> getNotebookDetails(
-            @PathVariable Long id,
+            @PathVariable @Positive Long id,
             @AuthenticationPrincipal UserPrincipal user
     ) {
         final Notebook notebook = this.notebooksService.getById(id, user);

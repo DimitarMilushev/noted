@@ -9,5 +9,5 @@ public record SignUpDto(
         @NotEmpty
         String username,
         @NotEmpty
-        String password //TODO: add constraints
+        String password //TODO: add pattern
 ) {}
