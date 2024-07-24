@@ -6,9 +6,9 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 @Builder
-public record LoadDashboardDataNotebookDto (
+public record LoadDashboardDataNotebookResponseDto(
         Long id,
         String title,
         ZonedDateTime lastUpdated,
-        List<LoadDashboardDataNoteDto> notes
+        List<LoadDashboardDataNoteResponseDto> notes
 ) {}

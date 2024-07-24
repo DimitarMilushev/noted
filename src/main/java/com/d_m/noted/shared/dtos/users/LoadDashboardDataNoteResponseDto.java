@@ -5,7 +5,7 @@ import lombok.Builder;
 import java.time.ZonedDateTime;
 
 @Builder
-public record LoadDashboardDataNoteDto (
+public record LoadDashboardDataNoteResponseDto(
     Long id,
     String title,
     ZonedDateTime lastUpdated

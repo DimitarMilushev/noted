@@ -1,6 +1,9 @@
 package com.d_m.noted.shared.dtos.notes;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
 public record UpdateNoteContentDto(
-        String title,
-        String content
+        @NotEmpty String title,
+        @NotNull String content
 ) {}

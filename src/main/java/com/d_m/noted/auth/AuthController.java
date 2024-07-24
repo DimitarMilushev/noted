@@ -46,12 +46,12 @@ public class AuthController {
     }
 
     @PostMapping("/change-password")
-    public ResponseEntity<String> changePassword(
+    public ResponseEntity<Void> changePassword(
             @RequestBody @Valid ChangePasswordDto payload
     ) {
         this.usersService.changePasswordByEmail(payload);
 
-        return ResponseEntity.ok("success");
+        return ResponseEntity.ok().build();
     }
 
 }

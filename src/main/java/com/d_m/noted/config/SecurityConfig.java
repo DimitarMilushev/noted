@@ -2,9 +2,12 @@ package com.d_m.noted.config;
 
 import com.d_m.noted.auth.UserSessionService;
 import com.d_m.noted.exception_handling.AuthenticationExceptionHandler;
+import com.d_m.noted.shared.constants.EnvConstants;
 import com.d_m.noted.users.enums.UserRole;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -28,6 +31,9 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity(debug = true)
 public class SecurityConfig {
+    @Autowired
+    Environment env;
+
     private static String[] LOGGED_OUT_ROUTES = {
             "/api/v1/auth/sign-in",
             "/api/v1/auth/sign-up",
@@ -40,7 +46,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://127.0.0.1:8200/"));
+        configuration.setAllowedOrigins(List.of(env.getProperty(EnvConstants.WEB_CLIENT_ORIGIN)));
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
@@ -102,7 +108,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder encoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }

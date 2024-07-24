@@ -5,7 +5,7 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder
-public record LoadDashboardDataDto (
+public record LoadDashboardDataResponseDto(
         Long id,
-        List<LoadDashboardDataNotebookDto> notebooks
+        List<LoadDashboardDataNotebookResponseDto> notebooks
 ){ }
