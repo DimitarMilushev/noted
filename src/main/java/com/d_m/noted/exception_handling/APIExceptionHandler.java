@@ -1,15 +1,11 @@
 package com.d_m.noted.exception_handling;
 
-import com.d_m.noted.shared.dtos.web.APIExceptionResponseDto;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -21,7 +17,6 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.net.URI;
-import java.util.Arrays;
 
 @ControllerAdvice
 public class APIExceptionHandler extends ResponseEntityExceptionHandler {
@@ -32,12 +27,11 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
             final ServletWebRequest request
     ) {
         logger.info(HttpStatus.BAD_REQUEST.toString(), ex);
-        final APIExceptionResponseDto data = APIExceptionResponseDto.fromHttpStatus(
-                URI.create("https://developer.mozilla.org/docs/Web/HTTP/Status/400"),
-                ex.getMessage(),
-                URI.create(request.getRequest().getRequestURI()),
-                HttpStatus.BAD_REQUEST
-        );
+        final ProblemDetail data = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        data.setType(URI.create("https://developer.mozilla.org/docs/Web/HTTP/Status/400"));
+        data.setDetail(ex.getMessage());
+        data.setInstance( URI.create(request.getRequest().getRequestURI()));
+
         return handleExceptionInternal(ex, data, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
@@ -48,6 +42,7 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
             HttpStatusCode status,
             WebRequest request
     ) {
+        logger.info(HttpStatus.BAD_REQUEST.toString(), ex);
         String message = "";
         if (ex.hasFieldErrors()) {
             final FieldError fieldError = ex.getFieldError();
@@ -56,25 +51,23 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
             message = ex.getMessage();
         }
 
-        final APIExceptionResponseDto data = APIExceptionResponseDto.fromHttpStatus(
-                URI.create("https://developer.mozilla.org/docs/Web/HTTP/Status/400"),
-                message,
-                URI.create(((ServletWebRequest) request).getRequest().getRequestURI()),
-                HttpStatus.BAD_REQUEST
-        );
-        return this.handleExceptionInternal(ex, data, headers, status, request);
+        final ProblemDetail data = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        data.setType(URI.create("https://developer.mozilla.org/docs/Web/HTTP/Status/400"));
+        data.setDetail(message);
+        data.setInstance(URI.create(((ServletWebRequest) request).getRequest().getRequestURI()));
+
+        return handleExceptionInternal(ex, data, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
     // 403
     @ExceptionHandler({ AccessDeniedException.class })
     public ResponseEntity<Object> handleForbidden(final RuntimeException ex, final ServletWebRequest request) {
         logger.info(HttpStatus.FORBIDDEN.toString(), ex);
-        final APIExceptionResponseDto data = APIExceptionResponseDto.fromHttpStatus(
-                URI.create("https://developer.mozilla.org/docs/Web/HTTP/Status/403"),
-                ex.getMessage(),
-                URI.create(request.getRequest().getRequestURI()),
-                HttpStatus.FORBIDDEN
-        );
+        final ProblemDetail data = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        data.setType(URI.create("https://developer.mozilla.org/docs/Web/HTTP/Status/403"));
+        data.setDetail(ex.getMessage());
+        data.setInstance(URI.create(request.getRequest().getRequestURI()));
+
         return handleExceptionInternal(ex, data, new HttpHeaders(), HttpStatus.FORBIDDEN, request);
     }
 
@@ -82,12 +75,11 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({ EntityNotFoundException.class })
     public ResponseEntity<Object> handleNotFound(final RuntimeException ex, final ServletWebRequest request) {
         logger.info(HttpStatus.NOT_FOUND.toString(), ex);
-        final APIExceptionResponseDto data = APIExceptionResponseDto.fromHttpStatus(
-                URI.create("https://developer.mozilla.org/docs/Web/HTTP/Status/404"),
-                ex.getMessage(),
-                URI.create(request.getRequest().getRequestURI()),
-                HttpStatus.NOT_FOUND
-        );
+        final ProblemDetail data = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        data.setType(URI.create("https://developer.mozilla.org/docs/Web/HTTP/Status/404"));
+        data.setDetail(ex.getMessage());
+        data.setInstance(URI.create(request.getRequest().getRequestURI()));
+
         return handleExceptionInternal(ex, data, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
 
@@ -95,12 +87,11 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         pageNotFoundLogger.warn(ex.getMessage());
-        final APIExceptionResponseDto data = APIExceptionResponseDto.fromHttpStatus(
-                URI.create("https://developer.mozilla.org/docs/Web/HTTP/Status/405"),
-                ex.getMessage(),
-                URI.create(((ServletWebRequest) request).getRequest().getRequestURI()),
-                HttpStatus.METHOD_NOT_ALLOWED
-        );
+        final ProblemDetail data = ProblemDetail.forStatus(HttpStatus.METHOD_NOT_ALLOWED);
+        data.setType(URI.create("https://developer.mozilla.org/docs/Web/HTTP/Status/405"));
+        data.setDetail(ex.getMessage());
+        data.setInstance(URI.create(((ServletWebRequest) request).getRequest().getRequestURI()));
+
         return this.handleExceptionInternal(ex, data, headers, HttpStatus.METHOD_NOT_ALLOWED, request);
     }
 
@@ -108,12 +99,11 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({ InvalidDataAccessApiUsageException.class, DataAccessException.class, EntityExistsException.class })
     public ResponseEntity<Object> handleConflict(final RuntimeException ex, final ServletWebRequest request) {
         logger.info(HttpStatus.CONFLICT.toString(), ex);
-        final APIExceptionResponseDto data = APIExceptionResponseDto.fromHttpStatus(
-                URI.create("https://developer.mozilla.org/docs/Web/HTTP/Status/409"),
-                ex.getMessage(),
-                URI.create(request.getRequest().getRequestURI()),
-                HttpStatus.CONFLICT
-        );
+        final ProblemDetail data = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        data.setType(URI.create("https://developer.mozilla.org/docs/Web/HTTP/Status/409"));
+        data.setDetail(ex.getMessage());
+        data.setInstance(URI.create(request.getRequest().getRequestURI()));
+
         return handleExceptionInternal(ex, data, new HttpHeaders(), HttpStatus.CONFLICT, request);
     }
 
@@ -122,12 +112,11 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({ NullPointerException.class, IllegalArgumentException.class, IllegalStateException.class })
     public ResponseEntity<Object> handleInternal(final RuntimeException ex, final ServletWebRequest request) {
         logger.error(HttpStatus.INTERNAL_SERVER_ERROR.toString(), ex);
-        final APIExceptionResponseDto data = APIExceptionResponseDto.fromHttpStatus(
-                URI.create("https://developer.mozilla.org/docs/Web/HTTP/Status/500"),
-                "The API server encountered an error.",
-                URI.create(request.getRequest().getRequestURI()),
-                HttpStatus.INTERNAL_SERVER_ERROR
-        );
+        final ProblemDetail data = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        data.setType(URI.create("https://developer.mozilla.org/docs/Web/HTTP/Status/500"));
+        data.setDetail("Encountered an internal error. Please, try again later.");
+        data.setInstance(URI.create(request.getRequest().getRequestURI()));
+
         return handleExceptionInternal(ex, data, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 }
