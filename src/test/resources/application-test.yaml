@@ -1,5 +1,5 @@
 server:
-  port: ${PORT}
+  port: 1000
 spring:
   application:
     name: "noted"
@@ -9,28 +9,24 @@ spring:
       client:
         registration:
           github:
-            clientId: ${GITHUB_CLIENT_ID}
-            clientSecret: ${GITHUB_CLIENT_SECRET}
+            clientId: "TEST_GITHUB_CLIENT_ID"
+            clientSecret: "TEST_GITHUB_CLIENT_SECRET"
 
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-    driver-class-name: "org.postgresql.Driver"
+    url: "jdbc:h2:mem:test-db"
+    username: "test_user"
+    password: "test_password"
+    driver-class-name: "org.h2.Driver"
 
   jpa:
     hibernate:
-      ddl-auto: "update"
-
-    properties:
-      hibernate:
-        dialect: "org.hibernate.dialect.PostgreSQLDialect"
+      ddl-auto: "create"
 
   h2:
     datasource:
-      url: ${SESSION_DB_URL}
-      username: ${SESSION_DB_USERNAME}
-      password: ${SESSION_DB_PASSWORD}
+      url: "jdbc:h2:mem:test-sessions"
+      username: "test_sessions_user"
+      password: "test_sessions_password"
       driver-class-name: "org.h2.Driver"
       schema: "classpath:org/springframework/session/jdbc/schema-h2.sql"
     console:

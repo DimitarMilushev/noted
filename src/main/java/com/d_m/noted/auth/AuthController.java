@@ -45,13 +45,19 @@ public class AuthController {
         return ResponseEntity.ok(responseDto);
     }
 
-    @PostMapping("/change-password")
-    public ResponseEntity<Void> changePassword(
-            @RequestBody @Valid ChangePasswordDto payload
-    ) {
-        this.usersService.changePasswordByEmail(payload);
+//    @GetMapping("/oauth/token-exchange")
+//    public ResponseEntity<Void> tokenExchange() {
+//        String info =
+//    }
 
-        return ResponseEntity.ok().build();
-    }
+//    @PostMapping("/change-password")
+//    public ResponseEntity<Void> changePassword(
+//            @RequestBody @Valid ChangePasswordDto payload
+//    ) {
+//        //TODO: Should check if logged in.
+//        this.usersService.changePasswordByEmail(payload);
+//
+//        return ResponseEntity.ok().build();
+//    }
 
 }

@@ -11,6 +11,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 @AllArgsConstructor
 public class UsersService {
@@ -22,7 +24,7 @@ public class UsersService {
             throw new EntityExistsException("User with email " + payload.email() + " already exists");
         }
 
-        UserData user = UserData.builder()
+        final UserData user = UserData.builder()
                 .email(payload.email())
                 .username(payload.username())
                 .password(passwordEncoder.encode(payload.password()))
@@ -32,32 +34,27 @@ public class UsersService {
     }
 
     public UserData getById(Long id, UserPrincipal user) {
-        final UserData userData = this.repository.findById(id).orElseThrow(EntityNotFoundException::new);
-        if (!user.isAdmin()) checkResourceAccessByUserId(userData, user.getId());
-
-        return userData;
-    }
-
-    public void changePasswordByEmail(ChangePasswordDto payload) {
-        final UserData user = this.repository
-                .findByEmail(payload.email())
-                .orElseThrow(
-                        () -> new EntityNotFoundException("Failed to find user with email " + payload.email()
-                        )
-                );
-        if (passwordEncoder.matches(payload.password(), user.getPassword())) {
-            throw new RuntimeException("Cannot change duplicate password for " + payload.email());
+        if (!user.isAdmin() && !user.getId().equals(id)) {
+            throw new AccessDeniedException("User " + user.getId() + " doesn't have access to " + id);
         }
 
-        user.setPassword(this.passwordEncoder.encode(payload.password()));
-        this.repository.save(user);
+        return this.repository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Failed to find user data with id " + id));
     }
-
-    private void checkResourceAccessByUserId(UserData userData, Long userId) {
-        final Long ownerId = userData.getId();
-
-        if (!ownerId.equals(userId)) {
-            throw new AccessDeniedException("User " + userId + " doesn't have access to " + userData.getId());
-        }
-    }
+//
+//    public void changePasswordByEmail(ChangePasswordDto payload) {
+//        final UserData data = this.repository
+//                .findByEmail(payload.email())
+//                .orElseThrow(
+//                        () -> new EntityNotFoundException("Failed to find user with email " + payload.email()
+//                        )
+//                );
+//        if (passwordEncoder.matches(payload.password(), data.getPassword())) {
+//            throw new RuntimeException("Cannot change duplicate password for " + payload.email());
+//        }
+//
+//        data.setPassword(this.passwordEncoder.encode(payload.password()));
+//        this.repository.save(data);
+//    }
 }

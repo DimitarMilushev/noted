@@ -3,6 +3,7 @@ package com.d_m.noted.config;
 import com.d_m.noted.auth.UserSessionService;
 import com.d_m.noted.exception_handling.AuthenticationExceptionHandler;
 import com.d_m.noted.shared.constants.EnvConstants;
+import com.d_m.noted.shared.constants.RoutingConstants;
 import com.d_m.noted.users.enums.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +12,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -29,20 +31,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity
 public class SecurityConfig {
     @Autowired
     Environment env;
 
-    private static String[] LOGGED_OUT_ROUTES = {
-            "/api/v1/auth/sign-in",
-            "/api/v1/auth/sign-up",
-            "/api/v1/auth/change-password"
-    };
-
-    private static String[] ADMIN_ROUTES = {
-            "/h2-console"
-    };
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -64,10 +57,12 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable);
         // HTTP routes
         http.authorizeHttpRequests((authorize) -> authorize
-                .requestMatchers(LOGGED_OUT_ROUTES).anonymous()
-                .requestMatchers(ADMIN_ROUTES).hasRole(UserRole.ADMIN.getStringifiedValue())
-                .anyRequest().authenticated()
+                .requestMatchers(RoutingConstants.LOGGED_OUT_ROUTES).anonymous()
+                .requestMatchers(RoutingConstants.ADMIN_ROUTES).hasRole(UserRole.ADMIN.getStringifiedValue())
+                .anyRequest().anonymous()
         );
+        http.oauth2Login(Customizer.withDefaults());
+
         http.exceptionHandling((handling) -> handling.authenticationEntryPoint((new AuthenticationExceptionHandler())));
 
         // Session management
@@ -75,7 +70,6 @@ public class SecurityConfig {
                 .addSessionAuthenticationStrategy(new ChangeSessionIdAuthenticationStrategy())
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
         );
-
 
         // Logout
         http.logout(
